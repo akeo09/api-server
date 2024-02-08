@@ -1,5 +1,7 @@
+const jwt = require('jsonwebtoken')
+const bcrypt = require('bcrypt')
+const validator = require('validator')
 const mongoose = require('mongoose') 
-
 const Schema = mongoose.Schema
 
 const userSchema = new Schema({ 
@@ -8,7 +10,12 @@ const userSchema = new Schema({
       unique: true,
       required: true,
       trim: true,
-      lowercase: true
+      lowercase: true,
+      validate(value) {
+        if (!validator.isEmail(value)) {
+            throw new Error('Email is invalid')
+        }
+      }
     },
     username: { 
         type: String,
@@ -33,6 +40,39 @@ const userSchema = new Schema({
     tokens: [String],
     profile_pic: Buffer
 })
+
+userSchema.pre('save', async function(next) {
+    const user = this
+    
+    if (user.isModified('password')) {
+        user.password = await bcrypt.hash(user.password, 8)
+    }
+    next()
+})
+
+userSchema.methods.toJSON = function() {
+  const user = this
+  
+  const userObject = user.toObject()
+  
+  delete userObject.password
+  delete userObject.tokens
+  delete userObject.email_verified
+  delete userObject.__v
+  
+  return userObject
+}
+
+userSchema.methods.generateAuthToken = async function () {
+  const user = this
+ 
+  const token = jwt.sign({ _id: user._id.toString() }, process.env.JSON_WEB_TOKEN_SECRET)
+
+  user.tokens = user.tokens.concat(token)
+  await user.save()
+
+  return token
+}
 
 const User = mongoose.model('User', userSchema);
 
