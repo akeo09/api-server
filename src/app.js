@@ -1,22 +1,24 @@
-require('dotenv').config({ debug: true});
+//require('dotenv').config({ debug: true});
 
 const express = require ('express')
-require('./db/mongoose')
-const cors = require('cors');
+//require('./db/mongoose')
+//const cors = require('cors');
 //onst userRouter = require('./routers/user')
 
-const app = express ()
+const app = express()
 
+/*
 app.use(cors())
 app.use(function (req, res, next) {
     res.header("Access-Control-Allow-Origin", "*");
     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
     next();
 })
+*/
 
-app.post("/", (req, res) => { res.send('hello') })
+//app.post("/", (req, res) => { res.send('hello') })
 
-app.use(express.json())
+//app.use(express.json())
 //app.use(userRouter)
 
 //Set port to the PORT environment variable (if it is defined),
