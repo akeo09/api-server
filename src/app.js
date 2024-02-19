@@ -1,9 +1,9 @@
 //require('dotenv').config({ debug: true});
 
 const express = require ('express')
-//require('./db/mongoose')
+require('./db/mongoose')
 //const cors = require('cors');
-//onst userRouter = require('./routers/user')
+//const userRouter = require('./routers/user')
 
 const app = express()
 
