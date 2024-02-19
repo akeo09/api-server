@@ -17,6 +17,10 @@ app.use(function (req, res, next) {
 app.use(express.json())
 app.use(userRouter)
 
+app.get('', (req, res) => {
+    res.send('Hello World!')
+})
+
 //Set port to the PORT environment variable (if it is defined),
 //otherwise set it to 3000
 const port = process.env.PORT || 3000
