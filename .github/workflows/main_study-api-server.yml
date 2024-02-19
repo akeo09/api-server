@@ -59,4 +59,4 @@ jobs:
           app-name: 'study-api-server'
           slot-name: 'Production'
           package: .
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_F74B6E04AB9A4935913538013D527057 }}
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_2E697D3EF0A547078BF6362F7F4E7551 }}
