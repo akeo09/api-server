@@ -3,7 +3,7 @@ require('dotenv').config({ debug: true});
 const express = require ('express')
 require('./db/mongoose')
 const cors = require('cors');
-const userRouter = require('./routers/user')
+//onst userRouter = require('./routers/user')
 
 const app = express ()
 
@@ -14,9 +14,10 @@ app.use(function (req, res, next) {
     next();
 })
 
+app.post("/", (req, res) => { res.send('hello') })
 
 app.use(express.json())
-app.use(userRouter)
+//app.use(userRouter)
 
 //Set port to the PORT environment variable (if it is defined),
 //otherwise set it to 3000
