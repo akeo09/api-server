@@ -10,9 +10,10 @@ router.post('/user', async (req, res) => {
   delete req.body.email_verified
   delete req.body.tokens
 
-  const user = new User(req.body)
 
   try {
+    const user = new User(req.body)
+
     await user.save()
     const token = await user.generateAuthToken()
     
