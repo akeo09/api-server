@@ -1,4 +1,4 @@
-//require('dotenv').config({ debug: true});
+require('dotenv').config({ debug: true});
 
 const express = require ('express')
 require('./db/mongoose')

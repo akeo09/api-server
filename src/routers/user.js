@@ -1,7 +1,7 @@
 const auth = require('../middleware/auth')
 const express = require('express')
 const User = require('../models/user')
-//const { sendVerificationEmail } = require('../emails/account.js') 
+const { sendVerificationEmail } = require('../emails/account.js') 
 
 const router = new express.Router()
 
@@ -17,7 +17,7 @@ router.post('/user', async (req, res) => {
     await user.save()
     const token = await user.generateAuthToken()
     
-    //sendVerificationEmail(user.email, user.username, token)
+    sendVerificationEmail(user.email, user.username, token)
     res.status(201).send(user)
   } 
   catch(error) {
