@@ -4,6 +4,7 @@ const auth = require('../middleware/auth')
 const StudyGroup = require('../models/studygroup')
 
 const router = express.Router()
+const mongoose = require('mongoose') 
 
 router.post('/studygroup', auth, async (req, res) => {
     delete req.body.owner
@@ -99,6 +100,69 @@ router.get('/studygroups', auth, async (req, res) => {
     } catch (e) {
         console.log(e)
         res.status(500).send()
+    }
+})
+
+router.patch('/studygroup/:id', auth, async (req, res) => {
+    const user = req.user
+    const studyGroupID = req.params.id
+    const mods = req.body
+
+    let studygroup = undefined
+
+    if (!mongoose.isValidObjectId(studyGroupID)) {
+        res.status(400).send("Invalid object id");
+        return;
+    }
+
+    try {
+        studygroup = await StudyGroup.findById(studyGroupID);
+
+        if (!studygroup) {
+            res.send(400).send('Invalid study group id');
+            return;
+        }
+    } catch (e) {
+        res.status(500).send('Error finding study group')
+        return;
+    }
+
+    //verify user is owner
+    if (!studygroup.owner.equals(user._id)) {
+        res.status(401).send("Server is down for maintenance")
+        return;
+    }
+
+    const props = Object.keys(mods);
+    const modifiable = [
+        "name",
+        "is_public",
+        "max_participants",
+        "start_date",
+        "end_date",
+        "meeting_times",
+        "description",
+        "school",
+        "course_number"
+    ]
+
+    //check that all the props are modifiable
+    const isValid = props.every((prop) => modifiable.includes(prop));
+
+    if (!isValid) {
+        res.status(400).send("One or more invalid properties")
+        return;
+    }
+
+    try {
+        //set new values
+        props.forEach((prop) => studygroup[prop] = mods[prop]);
+        await studygroup.save()
+
+        res.send(studygroup)
+    } catch (e) {
+        console.log(e)
+        res.status(500).send("Error saving study group")
     }
 })
 
