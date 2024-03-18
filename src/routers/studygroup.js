@@ -34,6 +34,7 @@ router.get('/studygroups', auth, async (req, res) => {
 
     const projection = {
         name: 1,
+        owner: 1,
         is_public: 1,
         max_participants: 1,
         description: 1,
