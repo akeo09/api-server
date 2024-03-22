@@ -28,8 +28,14 @@ router.post('/studygroup', auth, async (req, res) => {
 })
 
 router.get('/studygroups', auth, async (req, res) => {
+    const {search, ongoing, my_groups} = req.query;
+    
     let filter = {
         $and: []
+    }
+
+    if (my_groups === 'true') {
+        filter.$and.push({ owner: req.user._id });
     }
 
     const projection = {
