@@ -38,7 +38,7 @@ const userSchema = new Schema({
     },
     majors: [String],
     tokens: [String],
-    profile_pic: Buffer
+    profile_pic: Buffer,
 })
 
 userSchema.pre('save', async function(next) {
@@ -88,4 +88,4 @@ userSchema.methods.generateAuthToken = async function () {
 
 const User = mongoose.model('User', userSchema);
 
-module.exports = User
+module.exports = User;

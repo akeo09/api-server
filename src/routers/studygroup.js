@@ -2,6 +2,7 @@ const express = require('express')
 const auth = require('../middleware/auth')
 
 const StudyGroup = require('../models/studygroup')
+const User = require('../models/user');
 
 const router = express.Router()
 const mongoose = require('mongoose') 
@@ -49,7 +50,10 @@ router.get('/studygroups', auth, async (req, res) => {
         meeting_times: 1,
         school: 1,
         course_number: 1
+        //participants: 1
     }
+
+    //projection['participants.name'] = 1;
 
     const options = {}
 
@@ -102,7 +106,7 @@ router.get('/studygroups', auth, async (req, res) => {
     }
 
     try {
-        const results = await StudyGroup.find(filter, projection, options)
+        const results = await StudyGroup.find(filter, projection, options).populate('participants')
         res.send(results)
     } catch (e) {
         console.log(e)
@@ -123,7 +127,7 @@ router.patch('/studygroup/:id', auth, async (req, res) => {
     }
 
     try {
-        studygroup = await StudyGroup.findById(studyGroupID);
+        studygroup = await StudyGroup.findById(studyGroupID).populate('participants', 'username');
 
         if (!studygroup) {
             res.send(400).send('Invalid study group id');
@@ -172,5 +176,88 @@ router.patch('/studygroup/:id', auth, async (req, res) => {
         res.status(500).send("Error saving study group")
     }
 })
+
+router.delete('/studygroup/:id', auth, async (req, res) => {
+    const user = req.user
+    const studyGroupId = req.params.id
+
+    let studyGroup = null
+
+    if(!mongoose.isValidObjectId(studyGroupId)) {
+        res.status(400).send("Invalid request")
+        return
+    }
+
+    try {
+        studyGroup = await StudyGroup.findById(studyGroupId)
+
+        if(!studyGroup) {
+            res.status(400).send("Study group not found")
+            return
+        }
+
+        //verify user is owner
+        if(!studyGroup.owner.equals(user._id)) {
+            res.status(401).send()
+            return
+        }
+
+        await studyGroup.deleteOne()
+
+        res.send()
+    } catch (e) {
+        console.log(e)
+        res.status(500).send()
+    }
+})
+
+router.patch('/studygroup/:id/participants', auth, async (req, res) => {
+    const studyGroupId = req.params.id;
+    const action = req.query.add ? 'add' : req.query.remove ? 'remove' : null;
+    const userId = req.body.userId;
+
+    // Ensure the action parameter is provided and valid
+    if (!action || !['add', 'remove'].includes(action)) {
+        return res.status(400).send('Invalid action parameter');
+    }
+
+    // Validate user ID
+    if (!mongoose.isValidObjectId(userId)) {
+        return res.status(400).send('Invalid user ID');
+    }
+
+    try {
+        // Find the study group
+        const studyGroup = await StudyGroup.findById(studyGroupId);
+
+        if (!studyGroup) {
+            return res.status(404).send('Study group not found');
+        }
+
+        // Check if the user is already a participant
+        const isParticipant = studyGroup.participants.some(participant => participant.toString() === userId);
+
+        // Perform the appropriate action based on the request
+        if (action === 'add') {
+            if (isParticipant) {
+                return res.status(400).send('User is already a participant');
+            }
+            studyGroup.participants.push(userId);
+        } else if (action === 'remove') {
+            if (!isParticipant) {
+                return res.status(400).send('User is not a participant');
+            }
+            studyGroup.participants = studyGroup.participants.filter(participant => participant.toString() !== userId);
+        }
+
+        // Save the updated study group
+        await studyGroup.save();
+
+        res.status(200).send('Participant ' + (action === 'add' ? 'added' : 'removed') + ' successfully');
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Internal Server Error');
+    }
+});
 
 module.exports = router

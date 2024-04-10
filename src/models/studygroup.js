@@ -43,7 +43,7 @@ const studyGroupSchema = new Schema({
     course_number: String,
     participants: [
         {
-            type: Schema.Types.ObjectId,
+            type: mongoose.Schema.Types.ObjectId,
             ref: 'User'
         }
     ]

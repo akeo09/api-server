@@ -2,6 +2,7 @@ const auth = require('../middleware/auth')
 const express = require('express')
 const User = require('../models/user')
 const { sendVerificationEmail } = require('../emails/account.js') 
+const mongoose = require('mongoose') 
 
 const router = new express.Router()
 
@@ -73,6 +74,27 @@ router.patch('/user/logout', auth, async (req, res) => {
   }
   catch (e) {
       res.status(500).send()
+  }
+})
+
+router.get('/user/:id', async (req, res) => {
+  const userId = req.params.id;
+
+  if (!mongoose.isValidObjectId(userId)) {
+    return res.status(400).send('Invalid user ID');
+  }
+
+  try {
+    const user = await User.findById(userId, { name: 1, email: 1, major: 1, school: 1});
+
+    if (!user) {
+      return res.status(404).send('User not found');
+    }
+
+    res.send(user);
+  } catch (error) {
+    console.error('Error fetching user: ', error);
+    res.status(500).send('Internal Server Error');
   }
 })
 

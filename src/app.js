@@ -6,6 +6,7 @@ const cors = require('cors');
 
 const userRouter = require('./routers/user')
 const studyGroupRouter = require('./routers/studygroup')
+const notificationRouter = require('./routers/notification')
 
 const app = express()
 
@@ -20,6 +21,7 @@ app.use(function (req, res, next) {
 app.use(express.json())
 app.use(userRouter)
 app.use(studyGroupRouter)
+app.use(notificationRouter)
 
 //Set port to the PORT environment variable (if it is defined),
 //otherwise set it to 3000
