@@ -39,6 +39,16 @@ const userSchema = new Schema({
     majors: [String],
     tokens: [String],
     profile_pic: Buffer,
+    notifications: [{ 
+      type: Schema.Types.ObjectId,
+      ref: 'Notification'
+    }],
+    ig_username: {
+      type: String
+    },
+    ig_password: {
+      type: String
+    }
 })
 
 userSchema.pre('save', async function(next) {

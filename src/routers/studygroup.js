@@ -106,7 +106,7 @@ router.get('/studygroups', auth, async (req, res) => {
     }
 
     try {
-        const results = await StudyGroup.find(filter, projection, options).populate('participants')
+        const results = await StudyGroup.find(filter, projection, options).populate('participants').populate('owner');
         res.send(results)
     } catch (e) {
         console.log(e)

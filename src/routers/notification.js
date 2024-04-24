@@ -11,20 +11,11 @@ router.post('/notification', auth, async (req, res) => {
     try {
         const { receiver, subject, body, notification_type, studygroup_id } = req.body;
 
-        console.log('Receiver: ', receiver)
-
         if (!receiver || typeof receiver !== 'string') {
             return res.status(400).json({ error: 'Receiver ID is missing or invalid'})
         }
-        //console.log('Request Body: ', req.body)
-        //console.log(typeof receiver, receiver)
-
-        //const receiverId = mongoose.Types.ObjectId(receiver);
-
-        //console.log('Reciever Id: ', receiverId)
 
         const sender = req.user._id;
-        //console.log('Sender Id: ', sender)
         const notification = new Notification({
             sender,
             receiver,
@@ -43,5 +34,16 @@ router.post('/notification', auth, async (req, res) => {
         res.status(500).json({ error: 'Internal Server Error' });
     }
 });
+
+router.get('/notifications', auth, async (req, res) => {
+    try {
+        const notifications = await Notification.find({ receiver: req.user._id }).populate('sender', 'username');
+
+        res.status(200).json(notifications);
+    } catch(e) {
+        console.error('Error fetching notifications: ', e);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+})
 
 module.exports = router;
