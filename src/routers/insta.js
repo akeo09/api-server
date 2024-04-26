@@ -5,6 +5,8 @@ const User = require('../models/user');
 
 const router = express.Router()
 const mongoose = require('mongoose') 
+const { IgApiClient } = require('instagram-private-api')
+const { get } = require('request-promise')
 
 router.post('/user/insta-post', auth, async (req, res) => {
     let user = req.user;
@@ -44,6 +46,7 @@ const postToInsta = async (user, data) => {
         return true;
     } catch (e) {
         console.log("Unable to post to Instagram :(");
+        console.error("Error:", e)
         return false;
     }
 }
